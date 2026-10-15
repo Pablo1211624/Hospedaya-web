@@ -1,0 +1,26 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+*.env
+!.env.example
+
+# Código generado
+generated/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Herramientas de agentes
+.agents/
+.claude/
+.windsurf/
+.cursor/
+.devin/
