@@ -1,0 +1,37 @@
+# HospedaYa - PostgreSQL
+# Ejecutar este archivo desde la carpeta donde está guardado con:
+#   docker compose up -d
+#
+# Verificar:
+#   docker ps
+#
+# Detener:
+#   docker compose down
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: hospedaya-postgres
+
+    environment:
+      POSTGRES_USER: hospedaya_admin
+      POSTGRES_PASSWORD: hospedaya_dev
+      POSTGRES_DB: hospedaya
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - hospedaya_data:/var/lib/postgresql/data
+
+    restart: unless-stopped
+
+volumes:
+  hospedaya_data:
+
+# Datos de conexión:
+# Host: localhost
+# Port: 5432
+# Database: hospedaya
+# User: hospedaya_admin
+# Password: hospedaya_dev
