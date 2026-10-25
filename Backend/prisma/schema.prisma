@@ -13,14 +13,21 @@ model alojamiento {
   nombre             String               @db.VarChar(150)
   descripcion        String?
   direccion          String               @db.VarChar(255)
+  ciudad             String               @default("") @db.VarChar(100)
+  habitaciones       Int                  @default(1)
+  banos              Int                  @default(1)
+  amenidades         String               @default("")
+  reglas             String               @default("")
   capacidad          Int
   precio_noche       Decimal              @db.Decimal(10, 2)
   estado             String               @default("ACTIVO") @db.VarChar(20)
   id_usuario         BigInt
-  usuario            usuario              @relation(fields: [id_usuario], references: [id_usuario], onUpdate: NoAction, map: "fk_airbnb_usuario")
+  usuario            usuario              @relation(fields: [id_usuario], references: [id_usuario], onDelete: Restrict, onUpdate: NoAction, map: "fk_alojamiento_usuario")
   disponibilidad     disponibilidad[]
   imagen_alojamiento imagen_alojamiento[]
   reserva            reserva[]
+  @@index([id_usuario])
+  @@index([ciudad, estado])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -41,6 +48,7 @@ model disponibilidad {
   estado            String      @default("DISPONIBLE") @db.VarChar(20)
   id_alojamiento    BigInt
   alojamiento       alojamiento @relation(fields: [id_alojamiento], references: [id_alojamiento], onDelete: Cascade, onUpdate: NoAction, map: "fk_disponibilidad_alojamiento")
+  @@index([id_alojamiento, fecha_inicio, fecha_fin])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -51,6 +59,7 @@ model imagen_alojamiento {
   orden          Int         @default(1)
   id_alojamiento BigInt
   alojamiento    alojamiento @relation(fields: [id_alojamiento], references: [id_alojamiento], onDelete: Cascade, onUpdate: NoAction, map: "fk_imagen_airbnb")
+  @@index([id_alojamiento])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -59,6 +68,8 @@ model reserva {
   fecha_entrada      DateTime       @db.Date
   fecha_salida       DateTime       @db.Date
   cantidad_huespedes Int
+  adultos            Int              @default(1)
+  ninos              Int              @default(0)
   estado             String         @default("PENDIENTE") @db.VarChar(20)
   fecha_creacion     DateTime       @default(now()) @db.Timestamp(6)
   id_usuario         BigInt
@@ -66,12 +77,15 @@ model reserva {
   costo_reserva      costo_reserva?
   alojamiento        alojamiento    @relation(fields: [id_alojamiento], references: [id_alojamiento], onUpdate: NoAction, map: "fk_reserva_alojamiento")
   usuario            usuario        @relation(fields: [id_usuario], references: [id_usuario], onUpdate: NoAction, map: "fk_reserva_usuario")
+  @@index([id_usuario])
+  @@index([id_alojamiento, fecha_entrada, fecha_salida])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model usuario {
   id_usuario    BigInt        @id @default(autoincrement())
   nombre        String        @db.VarChar(100)
+  biografia     String        @default("")
   correo        String        @unique @db.VarChar(255)
   password_hash String        @db.VarChar(255)
   rol           String        @db.VarChar(20)
