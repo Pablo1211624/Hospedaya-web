@@ -12,7 +12,9 @@
     "db:deploy": "prisma migrate deploy --config prisma7.config.ts",
     "test:auth": "tsx --test tests/auth/integration.test.ts",
     "test:lodgings": "tsx --test tests/lodgings/*.test.ts",
-    "test:reservations": "tsx --test tests/integration/api.test.ts"
+    "test:reservations": "tsx --test tests/integration/api.test.ts",
+    "test:e2e": "playwright test",
+    "test:payment": "tsx --test tests/payment-format.test.ts"
   },
   "keywords": [],
   "author": "",

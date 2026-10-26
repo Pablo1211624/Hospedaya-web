@@ -83,3 +83,20 @@ textarea{min-height:90px}
  .galeria{grid-template-columns:1fr 1fr;height:auto}.galeria .g0{grid-column:span 2;grid-row:auto;height:160px}
  .fila{flex-wrap:wrap}
 }
+/* API integration: responsive forms and real property images. */
+.buscador { flex-wrap: wrap; }
+.buscador .campo { flex: 1 1 140px; }
+.property-photo { width: 100%; height: 220px; object-fit: cover; border-radius: 14px; }
+.galeria .property-photo { height: 100%; min-height: 200px; }
+.wide-form { max-width: 700px; margin-bottom: 24px; }
+.notice { padding: 12px 24px; }
+.fila { flex-wrap: wrap; gap: 12px; }
+.fila p { margin: 4px 0; }
+textarea { min-height: 90px; }
+button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 600px) { .galeria { display: grid; grid-template-columns: 1fr; } .galeria .property-photo { height: 220px; } }
+.galeria { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); grid-template-rows: auto; height: auto; }
+.galeria .property-photo { height: 240px; min-height: 0; }
+.buscador { max-width: 900px; border-radius: 24px; padding: 1rem; gap: .7rem; }
+.tabs { flex-wrap: wrap; }
+.tabs button[aria-pressed=true] { background: var(--c2); font-weight: 700; }
