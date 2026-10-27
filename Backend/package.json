@@ -14,7 +14,8 @@
     "test:lodgings": "tsx --test tests/lodgings/*.test.ts",
     "test:reservations": "tsx --test tests/integration/api.test.ts",
     "test:e2e": "playwright test",
-    "test:payment": "tsx --test tests/payment-format.test.ts"
+    "test:payment": "tsx --test tests/payment-format.test.ts",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
