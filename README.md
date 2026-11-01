@@ -4,6 +4,27 @@ Aplicación académica para publicar, buscar y reservar alojamientos en Guatemal
 Frontend React + TypeScript + Vite; API REST Express + TypeScript; PostgreSQL y Prisma 7.
 Los pagos son una simulación de interfaz: las reservas se guardan, pero no se cobra.
 
+## Despliegue público
+
+- **Aplicación:** https://hospedaya-web.vercel.app
+- **API:** https://hospedaya-api.onrender.com
+- **Estado de la API:** https://hospedaya-api.onrender.com/api/health
+
+El frontend se publica en Vercel, la API Express se ejecuta como un contenedor Docker en Render y la base de datos es PostgreSQL administrado por Neon. El servicio gratuito de Render se suspende después de un período sin actividad, por lo que la primera petición puede tardar cerca de un minuto mientras vuelve a iniciar.
+
+### Neon y Prisma
+
+Neon proporciona la instancia PostgreSQL del despliegue sin exponer el servidor de base de datos al frontend. La cadena de conexión se guarda únicamente como la variable privada `DATABASE_URL` en Render; no se versiona ni se entrega al navegador.
+
+Prisma 7 se utiliza como capa de acceso a datos del backend:
+
+- `Backend/prisma/schema.prisma` define usuarios, alojamientos, disponibilidad, imágenes, reservas y costos, junto con sus relaciones.
+- `Backend/src/db.ts` crea `PrismaClient` con el adaptador PostgreSQL `@prisma/adapter-pg` y la conexión recibida mediante `DATABASE_URL`.
+- `Backend/prisma/migrations/` versiona la creación y evolución del esquema. El contenedor del backend ejecuta `npm run db:deploy` antes de iniciar la API, por lo que Render aplica automáticamente las migraciones pendientes en Neon.
+- `npm run db:seed` carga de forma opcional dos cuentas y un alojamiento de demostración. El seed es idempotente y no reemplaza contraseñas ni propiedades existentes.
+
+Las credenciales de Neon y el secreto JWT permanecen en las variables privadas de Render. Vercel recibe únicamente `VITE_API_URL`, que contiene la dirección pública de la API.
+
 ## Requisitos
 
 - Node.js 22.12 o superior compatible con las dependencias (verificado con Node 22.15).
