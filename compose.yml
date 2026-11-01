@@ -1,37 +1,66 @@
-# HospedaYa - PostgreSQL
-# Ejecutar este archivo desde la carpeta donde está guardado con:
-#   docker compose up -d
-#
-# Verificar:
-#   docker ps
-#
-# Detener:
-#   docker compose down
+# HospedaYa - aplicación completa
+# Iniciar: docker compose up --build -d
+# Detener: docker compose down
 
 services:
   postgres:
     image: postgres:16
     container_name: hospedaya-postgres
-
     environment:
       POSTGRES_USER: hospedaya_admin
       POSTGRES_PASSWORD: hospedaya_dev
       POSTGRES_DB: hospedaya
-
     ports:
       - "5432:5432"
-
     volumes:
       - hospedaya_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospedaya_admin -d hospedaya"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
+  backend:
+    build:
+      context: ./Backend
+    container_name: hospedaya-backend
+    env_file:
+      - ./Backend/.env
+    environment:
+      DATABASE_URL: postgresql://hospedaya_admin:hospedaya_dev@postgres:5432/hospedaya?schema=public
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    container_name: hospedaya-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:
   hospedaya_data:
-
-# Datos de conexión:
-# Host: localhost
-# Port: 5432
-# Database: hospedaya
-# User: hospedaya_admin
-# Password: hospedaya_dev

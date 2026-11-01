@@ -7,7 +7,7 @@ Los pagos son una simulación de interfaz: las reservas se guardan, pero no se c
 ## Requisitos
 
 - Node.js 22.12 o superior compatible con las dependencias (verificado con Node 22.15).
-- PostgreSQL 16 o superior. `compose.yml` permite levantar PostgreSQL 16 con Docker.
+- PostgreSQL 16 o superior. `compose.yml` permite levantar la aplicación completa con Docker.
 - npm. Ejecutar los comandos desde las carpetas indicadas.
 - Puertos de desarrollo: frontend 5173, API 3000, PostgreSQL 5432.
 
@@ -16,9 +16,9 @@ Los pagos son una simulación de interfaz: las reservas se guardan, pero no se c
 Elegir una de estas opciones:
 
 - **PostgreSQL local (verificado con 18):** crear una base vacía llamada `hospedaya` desde pgAdmin o con `CREATE DATABASE hospedaya;`. En `Backend/.env`, usar el usuario y contraseña configurados durante la instalación. Si la base ya está creada y migrada, no hay que crearla otra vez.
-- **Docker:** desde la raíz, ejecutar `docker compose up -d`. El archivo incluido usa PostgreSQL 16. No iniciarlo en el puerto 5432 si PostgreSQL local ya lo ocupa.
+- **Docker solo para PostgreSQL:** desde la raíz, ejecutar `docker compose up -d postgres`. El servicio incluido usa PostgreSQL 16. No iniciarlo en el puerto 5432 si PostgreSQL local ya lo ocupa.
 
-Docker inicia PostgreSQL; no carga los scripts SQL antiguos. Si Docker ya utiliza un volumen con datos, seguir primero la sección de base existente.
+El servicio PostgreSQL de Docker no carga los scripts SQL antiguos. Si Docker ya utiliza un volumen con datos, seguir primero la sección de base existente.
 
 En `Backend/`:
 ```sh
@@ -50,6 +50,28 @@ npm ci
 npm run dev
 ```
 Abrir http://localhost:5173. Copiar `Frontend/.env.example` a `.env` solo si se necesita configurar otra dirección de API. Las variables Vite son públicas: no colocar secretos en ellas.
+
+## Aplicación completa con Docker
+
+Primero crear `Backend/.env` a partir de `Backend/.env.example` y reemplazar `JWT_SECRET` por un secreto aleatorio de al menos 32 caracteres. La dirección local de `DATABASE_URL` se conserva para ejecutar comandos fuera de Docker; Compose la reemplaza dentro del contenedor para conectarse al servicio `postgres`.
+
+Desde la raíz del repositorio:
+
+```sh
+docker compose up --build -d
+docker compose ps
+```
+
+El backend espera a PostgreSQL, aplica las migraciones pendientes y luego inicia la API. El frontend queda disponible en http://localhost:5173 y la verificación de la API en http://localhost:3000/api/health.
+
+Para revisar registros o detener los servicios:
+
+```sh
+docker compose logs -f
+docker compose down
+```
+
+`docker compose down` conserva la base de datos. Solo `docker compose down -v` elimina también su volumen y sus datos.
 
 Para ejecutar el backend compilado:
 ```sh
